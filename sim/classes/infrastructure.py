@@ -11,7 +11,7 @@ import numpy as np
 
 # nx graph obtained as a barabasi albert graph
 class Infrastructure(nx.DiGraph):
-    def __init__(self, n: int = 2, m: int = 1, seed: Any = None, gml: str = None):
+    def __init__(self, n: int = 2, m: int = 3, seed: Any = None, gml: str = None):
         super().__init__(directed=True)
         self.n = n
         self.m = m
@@ -24,6 +24,7 @@ class Infrastructure(nx.DiGraph):
         self.init_nodes(g.nodes)
         self.init_links(g.edges)
         self.to_directed()
+        self.diameter = nx.diameter(self)
 
         self.degrees = self.out_degree()
         self._size = len(self.nodes)
@@ -98,7 +99,17 @@ class Infrastructure(nx.DiGraph):
         return res
 
     def __repr__(self):
-        return self.__str__()
+        return super().__repr__()
+
+    def simple_paths(self, source, target):
+        paths = list(
+            nx.all_simple_edge_paths(self, source, target, cutoff=self.diameter)
+        )
+        # sort by length
+        paths.sort(key=lambda x: len(x))
+        if not paths:
+            print(f"No path found between {source} and {target}.")
+        return paths
 
     def upload(self, file=None):
         file = self.file if not file else file

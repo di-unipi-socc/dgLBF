@@ -1,20 +1,23 @@
+import ast
 import time
 from functools import wraps
 from os import listdir, makedirs
 from os.path import abspath, dirname, exists, isfile, join
+from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 # --- Directories & files ---
-ROOT_DIR = dirname(dirname(abspath(__file__)))
-SIM_DIR = join(ROOT_DIR, "sim")
-PLOTS_DIR = join(SIM_DIR, "plots")
-RESULTS_DIR = join(SIM_DIR, "results")
+ROOT_DIR = Path(__file__).resolve().parent.parent
+SIM_DIR = ROOT_DIR / "sim"
+PLOTS_DIR = SIM_DIR / "plots"
+RESULTS_DIR = SIM_DIR / "results"
+DATA_DIR = SIM_DIR / "data"
 
-DATA_DIR = join(SIM_DIR, "data")
-FLOW_DIR = join(DATA_DIR, "flows")
-INFRA_DIR = join(DATA_DIR, "infrastructures")
-GML_DIR = join(DATA_DIR, "gml")
+FLOW_DIR = DATA_DIR / "flows"
+INFRA_DIR = DATA_DIR / "infrastructures"
+GML_DIR = DATA_DIR / "gml"
 
 RESULTS_FILE = "results-{name}.csv"
 GML_FILE = "{name}.gml"
@@ -34,7 +37,7 @@ PLOT_PATH = join(PLOTS_DIR, PLOT_FILE)
 PLOT_DPI = 600
 
 # --- Experiment config ---
-TIMEOUT = 1800  # seconds
+TIMEOUT = 300  # seconds
 GML_CHOICES = [f[:-4] for f in listdir(GML_DIR) if f.endswith(".gml")]
 EXP_TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 RES_TIMESTAMP_FORMAT = "%Y%m%d-%H%M"
@@ -83,6 +86,7 @@ LOAD_FLOWS_QUERY = "once(loadFlows('{path}'))."
 
 # --- Flow templates ---
 FLOW = "flow({fid}, {start}, {end}, {packet_size}, {burst_size}, {bit_rate}, {latency_budget}, {toleration_threshold})."
+CANDIDATE = "candidate({fid}, {path})."
 
 # --- Infrastructure templates ---
 NODE = "node({nid}, {latency_budget})."
@@ -109,8 +113,7 @@ def timeit(func):
     return measure_time
 
 
-def df_to_file(df, file_path):
+def df_to_file(df: pd.DataFrame, file_path: Path):
     # create the directory if it doesn't exist
-    dir = dirname(file_path)
-    makedirs(dir) if not exists(dir) else None
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(file_path, mode="a", header=(not isfile(file_path)))

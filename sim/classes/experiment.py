@@ -53,15 +53,15 @@ class Experiment:
     def set_infrastructure(self, gml):
         self.infrastructure = Infrastructure(gml=gml)
 
-    @dispatch(int, int)
-    def set_infrastructure(self, num_nodes, seed):
+    @dispatch(int)
+    def set_infrastructure(self, num_nodes):
         self.infrastructure = Infrastructure(
-            n=num_nodes, m=int(np.log2(num_nodes)), seed=seed
+            n=num_nodes, m=int(np.log2(num_nodes)), seed=self.seed
         )
 
     def set_flows(self, num_flows):
         self.flows_file = c.FLOW_FILE_PATH.format(size=num_flows)
-        self.flows = []
+        self.flows: List[Flow] = []
         for i in range(num_flows):
             start, end = np.random.choice(
                 self.infrastructure.nodes, size=2, replace=False
@@ -72,10 +72,21 @@ class Experiment:
         self.infrastructure.upload()
 
     def upload_flows(self):
-        [
-            f.upload(file=self.flows_file, append=(False if i == 0 else True))
-            for i, f in enumerate(self.flows)
-        ]
+        for i, f in enumerate(self.flows):
+            f.upload(
+                file=self.flows_file,
+                append=(False if i == 0 else True),
+            )
+
+        for f in self.flows:
+            paths = self.infrastructure.simple_paths(f.start, f.end)
+            with open(self.flows_file, "a+") as file:
+                file.write("\n")
+                for path in paths:
+                    candidate = c.CANDIDATE.format(
+                        fid=f.fid, path=str(path).replace("'", "")
+                    )
+                    file.write(candidate + "\n")
 
     def upload(self):
         self.upload_infr()
@@ -97,11 +108,11 @@ class Experiment:
             df = df[c.COL_ORDER]
             df.set_index("Timestamp", inplace=True)
             name = (
-                self.seed
+                str(self.seed)
                 if self.seed
                 else pd.Timestamp.now().strftime(c.RES_TIMESTAMP_FORMAT)
             )
-            filepath = c.RESULTS_FILE_PATH.format(name=name)
+            filepath = c.RESULTS_DIR / c.RESULTS_FILE.format(name=name)
             c.df_to_file(df, filepath)
         else:
             print("No results yet.")
@@ -110,7 +121,6 @@ class Experiment:
         self.set_infrastructure(infr)
         self.set_flows(flows)
         self.upload()
-
         with PrologMQI() as mqi:
             with mqi.create_thread() as prolog:
                 print(
@@ -136,7 +146,7 @@ class Experiment:
                         res = self.parse_output(q[0])
                     else:
                         print("\tNo results found.")
-                except PrologQueryTimeoutError as e:
+                except PrologQueryTimeoutError:
                     print("\tTimeout reached. Skipping this experiment.")
 
                 return res
