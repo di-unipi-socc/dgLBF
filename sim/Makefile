@@ -37,4 +37,4 @@ plot:
 	$(PYTHON) $(SIM_DIR)/plot.py
 
 run:
-	$(PYTHON) $(SIM_DIR)/main.py -s 110396 $(GML_FLAG) $(NODES_FLAG) $(FLOWS_FLAG) 
+	$(PYTHON) $(SIM_DIR)/main.py -s 281194 $(GML_FLAG) $(NODES_FLAG) $(FLOWS_FLAG) 

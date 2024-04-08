@@ -1,5 +1,6 @@
 from glob import iglob
 from os.path import join
+from typing import Union
 
 import config as c
 import matplotlib.pyplot as plt
@@ -11,6 +12,8 @@ from matplotlib.font_manager import FontProperties
 
 FLOWS_UNIQUE = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 FILES = list(iglob(join(c.RESULTS_DIR, "*.csv")))
+LEGEND_SIZE = 9
+X_TICKS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 
 
 def save_plot(name: str):
@@ -80,7 +83,8 @@ def flows_time(df: pd.DataFrame, suffix: str = ""):
 
     plt.legend(loc="upper left")
     plt.ylabel("Time (s)")
-    plt.xlim(0, FLOWS_UNIQUE[-1])
+    plt.xlim(0, FLOWS_UNIQUE[-1] + 10)
+    plt.xticks(X_TICKS)
 
     save_plot(f"time-{suffix}")
 
@@ -90,28 +94,28 @@ def infr_flow_time(df: pd.DataFrame, suffix: str = ""):
     plt.figure(figsize=(10, 6))
     df1 = df.sort_values(by=["Nodes"])
     df1["Infr"] = df1["Infr"].str.replace("infr", "")
+
+    hue = df1["Infr"]
+    if suffix == "topologies":
+        hue = hue + " (" + df1["Nodes"].astype(str) + ")"
+
     sns.lineplot(
-        data=df1,
-        x="Flows",
-        y="Time",
-        # label=infr,
-        # errorbar=None,
-        hue=df1["Infr"] + " (" + df1["Nodes"].astype(str) + ")",
-        style=df1["Infr"] + " (" + df1["Nodes"].astype(str) + ")",
-        markers=True,
-        dashes=False,
-        palette="colorblind",
+        data=df1, x="Flows", y="Time", hue=hue, style=hue, markers=True, dashes=False
     )
 
-    legend = plt.legend(title="infrastructure (#nodes)\n", ncol=1)
+    legend_title = "#nodes\n" if suffix == "random" else "infrastructure (#nodes)\n"
+    legend = plt.legend(title=legend_title, ncol=1 if suffix == "random" else 2)
     plt.gca().add_artist(legend)
 
     font = FontProperties()
     font.set_weight("bold")
     legend.get_title().set_font_properties(font)
+    legend.get_frame().set_alpha(0.7)
+    _set_legend(legend, LEGEND_SIZE)
 
     plt.ylabel("Time (s)")
-    plt.xlim(0, FLOWS_UNIQUE[-1])
+    plt.xlim(0, FLOWS_UNIQUE[-1] + 10)
+    plt.xticks(X_TICKS)
 
     save_plot(f"infr-flow-time-{suffix}")
 
@@ -126,20 +130,27 @@ def flow_infr_time(df: pd.DataFrame, suffix: str = ""):
         x="Nodes",
         y="Time",
         hue="Flows",
-        palette="colorblind",
     )
 
-    legend = plt.legend(title="infrastructure (#nodes)\n", ncol=1)
+    legend_title = "#nodes\n" if suffix == "random" else "infrastructure (#nodes)\n"
+    legend = plt.legend(title=legend_title, ncol=1)
     plt.gca().add_artist(legend)
 
     font = FontProperties()
     font.set_weight("bold")
+    font.set_size(LEGEND_SIZE)
     legend.get_title().set_font_properties(font)
+    legend.get_b
 
     plt.ylabel("Time (s)")
     plt.xlim(0, FLOWS_UNIQUE[-1])
 
     save_plot(f"flow-infr-time-{suffix}")
+
+
+def _set_legend(legend, size):
+    for line in legend.get_texts():
+        line.set_fontsize(size)
 
 
 if __name__ == "__main__":
@@ -155,7 +166,7 @@ if __name__ == "__main__":
     df_topologies = df.drop(df_random.index)
 
     # Plot
-    sns.set_theme(style="darkgrid")
+    sns.set_theme(style="darkgrid", palette="colorblind")
 
     if not df.empty:
         pass
