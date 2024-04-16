@@ -1,11 +1,9 @@
-import ast
 import time
 from functools import wraps
-from os import listdir, makedirs
-from os.path import abspath, dirname, exists, isfile, join
+from os import listdir
+from os.path import isfile, join
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 # --- Directories & files ---
@@ -66,17 +64,17 @@ FIG_OPTIONS = {
 
 NODE_LAT_MIN, NODE_LAT_MAX = 1, 5
 LINK_LAT_MIN, LINK_LAT_MAX = 1, 5
-LINK_BW_MIN, LINK_BW_MAX = 50, 500
+LINK_BW_MIN, LINK_BW_MAX = 500, 1500
 
 # --- Flow config ---
 PACKET_SIZE = 0.008
-# PACKET_SIZE_MIN, PACKET_SIZE_MAX, PACKET_SIZE_STEP = 0.001, 0.01, 0.001
-# PACKET_SIZE_RANGE = np.arange(PACKET_SIZE_MIN, PACKET_SIZE_MAX + PACKET_SIZE_STEP, PACKET_SIZE_STEP)
 BURST_SIZE_MIN, BURST_SIZE_MAX = 2, 4
-BIT_RATE_MIN, BIT_RATE_MAX = 1, 20
-LATENCY_BUDGET_MIN, LATENCY_BUDGET_MAX = 50, 150
+BIT_RATE_MIN, BIT_RATE_MAX = 2, 8
+LATENCY_BUDGET_MIN, LATENCY_BUDGET_MAX = 30, 60
 TOLERATION_THRESHOLD_MIN, TOLERATION_THRESHOLD_MAX = 10, 20
 
+# PACKET_SIZE_MIN, PACKET_SIZE_MAX, PACKET_SIZE_STEP = 0.001, 0.01, 0.001
+# PACKET_SIZE_RANGE = np.arange(PACKET_SIZE_MIN, PACKET_SIZE_MAX + PACKET_SIZE_STEP, PACKET_SIZE_STEP)
 ### TEMPLATES ###
 
 # -- Prolog Templates ---

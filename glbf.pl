@@ -1,5 +1,5 @@
 :-['src/utils.pl'].
-%:-['sim/data/flows/flows200.pl', 'sim/data/infrastructures/infrAbilene.pl'].
+% :-['sim/data/flows/flows500.pl', 'sim/data/infrastructures/infrAbilene.pl'].
 
 :- table transmissionTime/3.
 
@@ -19,9 +19,6 @@ placeFlows([FlowId|FlowIds], Alloc, NewAlloc, OldOut, Out) :-
     placeFlows(FlowIds, TmpAlloc, NewAlloc, [(FlowId, FOut)|OldOut], Out).
 placeFlows([], Alloc, Alloc, Out, Out).
 
-placeFlow(FlowId, _, _, ([], -1, 0)) :-
-    \+ candidate(FlowId, _), !.
-
 placeFlow(FlowId, Alloc, NewAlloc, (Path, NewMinB, Delay)) :-
     flow(FlowId, _, _, PacketSize, _, BitRate, Budget, Th),
     MinB is Budget - Th,
@@ -29,6 +26,9 @@ placeFlow(FlowId, Alloc, NewAlloc, (Path, NewMinB, Delay)) :-
     path(CPath, MinB, Alloc, PacketSize, BitRate, NewMinB),
     delay(NewMinB, CPath, Delay), updateCapacities(CPath, BitRate, Alloc, NewAlloc),
     flatPath(CPath, Path).
+
+placeFlow(FlowId, _, _, ([], -1, 0)) :-
+    \+ candidate(FlowId, _), !.
 
 path([(S, N)|Rest], OldMinB, Alloc, PacketSize, BitRate, NewMinB) :-
     link(S, N, TProp, Bandwidth),

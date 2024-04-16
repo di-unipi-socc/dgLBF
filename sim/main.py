@@ -3,7 +3,6 @@ import atexit
 import click
 import config as c
 from classes.experiment import Experiment
-from swiplserver import *
 
 
 @click.command()

@@ -7,6 +7,7 @@ import config as c
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import time
 
 
 # nx graph obtained as a barabasi albert graph
@@ -102,11 +103,17 @@ class Infrastructure(nx.DiGraph):
         return super().__repr__()
 
     def simple_paths(self, source, target):
+
+        start_time = time.time()
         paths = list(
             nx.all_simple_edge_paths(self, source, target, cutoff=self.diameter)
         )
-        # sort by length
+        # sort by number of hops between source and target
         paths.sort(key=lambda x: len(x))
+        end_time = time.time()
+        # with open("path_time.txt", "a") as f:
+        #     f.write(f"{self.name} - {end_time - start_time}\n")
+
         if not paths:
             print(f"No path found between {source} and {target}.")
         return paths

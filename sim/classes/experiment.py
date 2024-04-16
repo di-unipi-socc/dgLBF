@@ -6,6 +6,7 @@ import config as c
 import numpy as np
 import pandas as pd
 from swiplserver import *
+import networkx as nx
 
 from .flow import Flow
 from .infrastructure import Infrastructure
@@ -67,6 +68,11 @@ class Experiment:
                 self.infrastructure.nodes, size=2, replace=False
             )
             self.flows.append(Flow(f"f{i}", start, end, random=True))
+
+        # sort flows by number of hops between start and end
+        self.flows.sort(
+            key=lambda f: nx.shortest_path_length(self.infrastructure, f.start, f.end)
+        )
 
     def upload_infr(self):
         self.infrastructure.upload()

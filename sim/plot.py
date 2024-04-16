@@ -1,6 +1,5 @@
 from glob import iglob
 from os.path import join
-from typing import Union
 
 import config as c
 import matplotlib.pyplot as plt
@@ -169,7 +168,6 @@ if __name__ == "__main__":
     sns.set_theme(style="darkgrid", palette="colorblind")
 
     if not df.empty:
-        pass
         # df["Time"] = df["Time"] * 1000  # convert to ms
         flows_time(df_random, suffix="random")
         infr_flow_time(df_random, suffix="random")
