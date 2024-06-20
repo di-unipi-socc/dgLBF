@@ -18,3 +18,10 @@ link(n2, nEnd, 6, 50).
 flow(f1, nStart, nEnd, 0.008, 3, 5, 50, 10).
 flow(f2, nStart, nEnd, 0.01, 4, 10, 100, 10).
 flow(f3, nStart, nEnd, 0.008, 5, 8, 40, 10).
+
+candidate(_, [('nStart', 'n1'), ('n1', 'nEnd')]).
+
+degree(nStart, 2).
+degree(n1, 1).
+degree(n2, 1).
+degree(nEnd, 0).

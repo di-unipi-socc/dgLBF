@@ -11,7 +11,7 @@ from matplotlib.font_manager import FontProperties
 
 FLOWS_UNIQUE = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 FILES = list(iglob(join(c.RESULTS_DIR, "*.csv")))
-LEGEND_SIZE = 9
+LEGEND_SIZE = 13
 X_TICKS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 
 
@@ -99,12 +99,29 @@ def infr_flow_time(df: pd.DataFrame, suffix: str = ""):
         hue = hue + " (" + df1["Nodes"].astype(str) + ")"
 
     sns.lineplot(
-        data=df1, x="Flows", y="Time", hue=hue, style=hue, markers=True, dashes=False
+        data=df1,
+        x="Flows",
+        y="Time",
+        hue=hue,
+        style=hue,
+        markers=True,
+        markersize=9,
+        dashes=False,
     )
 
-    legend_title = "#nodes\n" if suffix == "random" else "infrastructure (#nodes)\n"
-    legend = plt.legend(title=legend_title, ncol=1 if suffix == "random" else 2)
-    plt.gca().add_artist(legend)
+    # legend_title = "#nodes\n" if suffix == "random" else "infrastructure (#nodes)\n"
+    legend = plt.legend(
+        # title=legend_title,
+        ncol=1 if suffix == "random" else 2,
+    )
+    # plt.gca().add_artist(legend)
+    plt.legend(
+        bbox_to_anchor=(0.02, 0.98),
+        loc="upper left",
+        borderaxespad=0.0,
+        ncol=1 if suffix == "random" else 2,
+        fontsize=LEGEND_SIZE if suffix == "random" else LEGEND_SIZE - 2,
+    )
 
     font = FontProperties()
     font.set_weight("bold")
@@ -112,9 +129,11 @@ def infr_flow_time(df: pd.DataFrame, suffix: str = ""):
     legend.get_frame().set_alpha(0.7)
     _set_legend(legend, LEGEND_SIZE)
 
-    plt.ylabel("Time (s)")
+    plt.ylabel("Time (s)", fontdict={"size": LEGEND_SIZE, "weight": "bold"})
+    plt.xlabel("# Flows", fontdict={"size": LEGEND_SIZE, "weight": "bold"})
     plt.xlim(0, FLOWS_UNIQUE[-1] + 10)
-    plt.xticks(X_TICKS)
+    plt.xticks(X_TICKS, fontsize=LEGEND_SIZE)
+    plt.yticks(fontsize=LEGEND_SIZE)
 
     save_plot(f"infr-flow-time-{suffix}")
 
@@ -169,9 +188,9 @@ if __name__ == "__main__":
 
     if not df.empty:
         # df["Time"] = df["Time"] * 1000  # convert to ms
-        flows_time(df_random, suffix="random")
+        # flows_time(df_random, suffix="random")
         infr_flow_time(df_random, suffix="random")
-        flows_time(df_topologies, suffix="topologies")
+        # flows_time(df_topologies, suffix="topologies")
         infr_flow_time(df_topologies, suffix="topologies")
     else:
         print("No data to plot!")

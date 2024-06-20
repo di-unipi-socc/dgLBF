@@ -1,33 +1,36 @@
 :-['src/utils.pl'].
-% :-['sim/data/flows/flows500.pl', 'sim/data/infrastructures/infrAbilene.pl'].
-
 :- table transmissionTime/3.
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 :- set_prolog_flag(stack_limit, 64 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
-glbf(Out, Alloc) :- 
-    findall(FlowId, flow(FlowId, _, _, _, _, _, _, _), FlowIds), 
-    placeFlows(FlowIds, Alloc, TmpOut),
-    findall((F,Path), member((F,(Path,_,_)),TmpOut), Paths),
-    queuingTimesOk(TmpOut, Paths, Out).
+glbf(Paths, Capacities) :-
+    possiblePaths(PPaths, Capacities),
+    validPaths(PPaths, Paths).
+    
+possiblePaths(Paths, Capacities) :-
+    findall(FlowId, flow(FlowId, _, _, _, _, _, _, _), FlowIds),
+    possiblePaths(FlowIds, Capacities, Paths).
+    
+validPaths(PPaths, Paths) :-
+    findall((F,Path), member((F,(Path,_,_)),PPaths), Paths2),
+    compatiblePaths(PPaths, Paths2, Paths).
 
-placeFlows(FlowIds, Alloc, Out) :- placeFlows(FlowIds, [], Alloc, [], Out).
-placeFlows([FlowId|FlowIds], Alloc, NewAlloc, OldOut, Out) :-
-    placeFlow(FlowId, Alloc, TmpAlloc, FOut),
-    placeFlows(FlowIds, TmpAlloc, NewAlloc, [(FlowId, FOut)|OldOut], Out).
-placeFlows([], Alloc, Alloc, Out, Out).
+possiblePaths(FlowIds, Alloc, Out) :- possiblePaths(FlowIds, [], Alloc, [], Out).
+possiblePaths([FlowId|FlowIds], Alloc, NewAlloc, OldOut, Out) :-
+    possiblePath(FlowId, Alloc, TmpAlloc, FOut),
+    possiblePaths(FlowIds, TmpAlloc, NewAlloc, [(FlowId, FOut)|OldOut], Out).
+possiblePaths([], Alloc, Alloc, Out, Out).
 
-placeFlow(FlowId, Alloc, NewAlloc, (Path, NewMinB, Delay)) :-
+possiblePath(FlowId, Alloc, NewAlloc, (Path, NewMinB, Delay)) :-
     flow(FlowId, _, _, PacketSize, _, BitRate, Budget, Th),
     MinB is Budget - Th,
     candidate(FlowId, CPath),
     path(CPath, MinB, Alloc, PacketSize, BitRate, NewMinB),
     delay(NewMinB, CPath, Delay), updateCapacities(CPath, BitRate, Alloc, NewAlloc),
     flatPath(CPath, Path).
-
-placeFlow(FlowId, _, _, ([], -1, 0)) :-
+possiblePath(FlowId, _, _, ([], -1, 0)) :-
     \+ candidate(FlowId, _), !.
 
 path([(S, N)|Rest], OldMinB, Alloc, PacketSize, BitRate, NewMinB) :-
@@ -47,12 +50,12 @@ delay(PathMinB, [(_,_)], Delay) :- Delay is PathMinB, !.
 delay(PathMinB, Path, Delay) :- PathMinB > 0, length(Path, L), Hops is L-1, Delay is PathMinB/Hops.
 delay(PathMinB, _, 0) :- PathMinB < 0.
 
-queuingTimesOk([(FlowId, (P, MinB, D))|Fs], Paths, [(FlowId, (P, (MinB,MaxB), D))|NewFs]) :-
+compatiblePaths([(FlowId, (P, MinB, D))|Fs], Paths, [(FlowId, (P, (MinB,MaxB), D))|NewFs]) :-
     flow(FlowId, _, _, PacketSize, BurstSize, _, _, Th), 
     totQTime(P, FlowId, PacketSize, BurstSize, Paths, TotQTime),
     MaxB is MinB + 2*Th - TotQTime, MaxB >= 0,
-    queuingTimesOk(Fs, Paths, NewFs).
-queuingTimesOk([], _, []).
+    compatiblePaths(Fs, Paths, NewFs).
+compatiblePaths([], _, []).
 
 totQTime([S,D|Path], FId, PacketSize, BurstSize, Paths, TotQTime) :-
     link(S, D, _, Bandwidth),
