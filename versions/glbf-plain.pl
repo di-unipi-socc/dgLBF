@@ -35,7 +35,7 @@ path(FlowId, Alloc, NewAlloc, (FlowId, PId, Path, NewMinB, Delay)) :-
 
 pathOk([S,N|Rest], OldMinB, Alloc, PacketSize, BitRate, NewMinB) :-
     link(S, N, TProp, Bandwidth, _),
-    hopOk(N, TProp, Bandwidth, Alloc, PacketSize, BitRate, OldMinB, TmpMinB),
+    hopOk(S, N, TProp, Bandwidth, Alloc, PacketSize, BitRate, OldMinB, TmpMinB),
     pathOk([N|Rest], TmpMinB, Alloc, PacketSize, BitRate, NewMinB).
 pathOk([_], MinB, _, _, _, MinB).
 
