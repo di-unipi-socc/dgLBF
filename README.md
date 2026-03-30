@@ -6,9 +6,9 @@
 
 **dgLBF** methodology is described and assessed in:
 
-> [Jacopo Massa](https://pages.di.unipi.it/massa), [Stefano Forti](https://pages.di.unipi.it/forti), [Patrizio Dazzi](https://pages.di.unipi.it/dazzi), [Antonio Brogi](https://pages.di.unipi.it/brogi)<br>
-> [**Declarative Traffic Engineering for Low-Latency and Reliable Networking**](https://doi.org/10.48550/arXiv.2503.21289), <br>	
-> arXiv: 2503.21289 [cs.NI].
+> [Jacopo Massa](https://pages.di.unipi.it/massa), [Stefano Forti](https://pages.di.unipi.it/forti), [Patrizio Dazzi](https://pages.di.unipi.it/dazzi), [Antonio Brogi](https://pages.di.unipi.it/brogi), [Alexander Clemm](https://orcid.org/0000-0003-3660-4546), Toerless Eckert<br>
+> [**Declarative Traffic Engineering for Low-Latency and Reliable Networking**](https://doi.org/10.1016/j.future.2026.108494), <br>	
+> Future Generation Computer Systems, 2026.
 
 ## How To &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2666/2666505.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2666/2666469.png">
 </picture>
